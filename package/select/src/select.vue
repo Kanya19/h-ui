@@ -1,6 +1,6 @@
 <template>
-  <div class="h_select" :style="styleVar">
-    <div class="divSelect" :class="{ drop_down: isListShow }" ref="divSelect">
+  <div class="h_select" :style="styleVar" :class="{ drop_down: isListShow }">
+    <div class="divSelect" ref="divSelect">
       <div class="divSelectinput" @click="dropDownSelect">
         <!-- 选中后的内容 -->
         <div
@@ -51,7 +51,7 @@ export default {
     return {
       label: "",
       isListShow: false,
-      optionid: "",
+      value: "",
     };
   },
   created() {
@@ -84,6 +84,11 @@ export default {
   methods: {
     dropDownSelect() {
       this.isListShow = !this.isListShow;
+    },
+  },
+  watch: {
+    value(value) {
+      this.$emit('input',value);
     },
   },
 };

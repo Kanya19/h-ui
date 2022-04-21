@@ -19,7 +19,7 @@
 
 <div class="demo-block">
   <h-select :list="options" v-model="value">
-    <h-option v-for="(item,key) in options" :key="key" :label="item.label" />
+    <h-option v-for="(item,key) in options" :key="key" :label="item.label" :value="item.value" />
   </h-select>
   <div>{{value}}</div>
 </div>

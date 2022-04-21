@@ -20,7 +20,7 @@ export default {
     label: {
       type: String,
     },
-    optionid: {
+    value: {
       type: String,
     },
   },
@@ -40,10 +40,11 @@ export default {
   },
   methods: {
     currentSelect() {
+      console.log(this.label,this.value);
       this.$parent.label = this.label;
-      this.$parent.optionid = this.optionid;
+      this.$parent.value = this.value;
       this.$parent.isListShow = !this.$parent.isListShow;
-      // this.$emit('slot-content', {label: this.label, optionid: this.optionid} );
+      // this.$emit('slot-content', {label: this.label, value: this.value} );
     },
   },
 };
