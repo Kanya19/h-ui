@@ -166,6 +166,7 @@ export default {
   content: "";
   left: 0px;
   width: 0;
+  top: -1px;
   height: 0;
   border-top: 0px solid transparent;
   border-left: 8px solid transparent;
@@ -175,7 +176,7 @@ export default {
 .select_triangle::after {
   position: absolute;
   left: 1px;
-  top: 1px;
+  top: 0px;
   content: "";
   width: 0;
   height: 0;

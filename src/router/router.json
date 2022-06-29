@@ -98,6 +98,17 @@
           "path": "/select"
         }
       ]
+    },
+    {
+      "desc": "cascader",
+      "path": "/component",
+      "items": [
+        {
+          "desc": "Cascader 联级选择器",
+          "name": "cascader",
+          "path": "/cascader"
+        }
+      ]
     }
   ],
   "笔记": [

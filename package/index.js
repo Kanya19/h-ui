@@ -7,8 +7,10 @@ import CarouselItem from './carousel-item/index.js';
 import Input from './input/index.js';
 import Checkbox from './checkbox/index.js';
 import Radio from './radio/index.js';
+import RadioGroup from './radio-group/index.js';
 import Select from './select/index.js';
 import Option from './option/index.js';
+import Cascader from './cascader/index.js';
 
 
 const components = [
@@ -19,11 +21,13 @@ const components = [
   Input,
   Checkbox,
   Radio,
+  RadioGroup,
   Select,
   Option,
+  Cascader
 ]
 
-const install = function(Vue) {
+const install = function (Vue) {
   if (install.installed) return
   components.map(component => Vue.component(component.name, component))
   Vue.prototype.$message = Message;
@@ -35,6 +39,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 
 export default {
   Radio,
+  RadioGroup,
   Select,
   Option,
   Input,
@@ -44,4 +49,5 @@ export default {
   collapseTransition,
   Carousel,
   CarouselItem,
+  Cascader,
 }

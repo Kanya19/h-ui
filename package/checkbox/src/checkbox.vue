@@ -1,46 +1,64 @@
 <template>
-  <div class="h-checkbox">
+  <label
+    :class="{
+      ['h-checkbox']: true,
+      checked: checked === value,
+      disabled: disabled,
+    }"
+  >
     <input
-      id="checkbox"
       type="checkbox"
-      class="h-checkbox__original"
+      :disabled="disabled"
+      v-model="checked"
       :value="value"
-      @input="changeInput"
+      @change="_change"
     />
-    <label for="checkbox">123</label>
-  </div>
+    <span :class="'h-checkbox-inner'"></span>
+    <span :class="'h-checkbox-text'" v-if="$slots.default"><slot></slot></span>
+    <span :class="'h-checkbox-text'" v-else v-text="label"></span>
+  </label>
 </template>
 <script>
 export default {
-  name: "HCheckbox",
-
+  name: "hCheckbox",
+  data() {
+    return {
+      checked: this.modelValue,
+    };
+  },
+  watch: {
+    modelValue() {
+      this.checked = this.modelValue;
+    },
+  },
+  model: {
+    prop: "modelValue",
+    event: "change",
+  },
   props: {
-    value: {
+    disabled: {
       type: Boolean,
       default: false,
     },
+    label: String,
+    value: {
+      type: [String, Boolean, Number],
+      default: true,
+    },
   },
+  components: {},
   methods: {
-    changeInput(e) {
-      this.$emit("input", e.target.value);
-      this.$parent.$emit("validator");
+    _change(e) {
+      let value = this.checked;
+      if (typeof this.modelValue === "string" && this.value) {
+        if (value) {
+          value = e.target.value;
+        } else {
+          value = "";
+        }
+      }
+      this.$emit("change", value, this.label);
     },
   },
 };
 </script>
-
-<style scoped>
-.h-checkbox {
-  color: #606266;
-  font-weight: 500;
-  font-size: 14px;
-  position: relative;
-  cursor: pointer;
-  display: inline-block;
-  white-space: nowrap;
-  user-select: none;
-  margin-right: 30px;
-}
-.h-checkbox__original {
-}
-</style>

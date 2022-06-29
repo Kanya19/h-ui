@@ -18,7 +18,7 @@
 ### 基础用法
 
 <div class="demo-block">
-  <h-checkbox v-model="checked">多选框</h-checkbox>
+  <h-checkbox :disabled="true" :border="true"  v-model="checked">多选框</h-checkbox>
 </div>
 
 <script>
@@ -52,7 +52,7 @@ export default {
 ```
 :::
 
-### Attributes
+<!-- ### Attributes
 | 参数     | 说明           | 类型    | 可选值                                             | 默认值 |
 | -------- | -------------- | ------- | -------------------------------------------------- | ------ |
 | size     | 尺寸           | string  | medium / small / mini                              | —      |
@@ -62,4 +62,4 @@ export default {
 | circle   | 是否圆形按钮   | boolean | —                                                  | false  |
 | loading  | 是否加载中状态 | boolean | —                                                  | false  |
 | disabled | 是否禁用状态   | boolean | —                                                  | false  |
-| icon     | 图标类名       | string  | —                                                  | —      |
+| icon     | 图标类名       | string  | —                                                  | —      | -->

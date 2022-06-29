@@ -3,18 +3,28 @@
     class="h-input"
     :class="[
       {
-        'is-disabled': inputDisabled,
+        'is-disabled': disabled,
       },
     ]"
   >
     <input
+      :readonly="readonly"
+      :name="name"
+      :autofocus="autofocus"
+      @blur="handleBlur"
+      @focus="handleFocus"
+      @change="handleChange"
+      @keyup="handleKeyup"
+      @input="changeInput"
       :disabled="disabled"
       class="h-input__inner"
       :value="value"
-      @input="changeInput"
       :placeholder="placeholder"
-    >
-  </div>
+    />
+    <span class="h-input__clearable" v-if="clearable && value" @click="clear">
+      <i style="font-size: 12px" class="h-icon-close"></i>
+    </span>
+  </div>  
 </template>
 <script>
 export default {
@@ -22,6 +32,12 @@ export default {
 
   props: {
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    name: String,
+    autofocus: Boolean,
+    readonly: {
       type: Boolean,
       default: false,
     },
@@ -43,14 +59,27 @@ export default {
     },
   },
   computed: {
-    inputDisabled() {
-      return this.disabled;
-    },
     inputClearable() {
       return this.clearable;
     },
   },
   methods: {
+    handleKeyup(e) {
+      this.$emit("keyUp", e);
+    },
+    handleChange() {
+      this.$emit("change", this.value, this.name);
+    },
+    clear() {
+      this.$emit("input", "");
+      this.$emit("clear");
+    },
+    handleFocus(e) {
+      this.$emit("focus", e);
+    },
+    handleBlur(e) {
+      this.$emit("blur", e);
+    },
     changeInput(e) {
       this.$emit("input", e.target.value);
     },
@@ -100,5 +129,10 @@ export default {
 }
 .h-input.is-disabled .h-input__inner:hover {
   border-color: #dcdfe6;
+}
+.h-input__clearable {
+  position: relative;
+  font-size: 12px;
+  right: 30px;
 }
 </style>
