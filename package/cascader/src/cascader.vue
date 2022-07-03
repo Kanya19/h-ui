@@ -1,6 +1,6 @@
 <!--Created by 337547038 on 2017/12/26.-->
 <template>
-  <div :class="`h-cascader`">
+  <div :class="'h-cascader'">
     <div
       :class="{
         ['h-input-control']: true,
@@ -11,42 +11,96 @@
       v-text="showValue"
     ></div>
     <i
-      class="icon-clear"
-      v-if="clear && value.length > 0"
+      class="clearable iconfont icon-close-circle"
+      v-if="clearable && value.length > 0"
       @click="_clearClick"
     ></i>
-    <span class="mask" v-show="show"></span>
-    <transition name="slide-toggle">
-      <div class="cascader-down" v-show="show" @click="_stopPropagation">
-        <p class="tips" v-text="tipsText" v-if="tipsText"></p>
-        <div class="cascader-tab">
-          <ul class="clearfix">
-            <li
-              :class="{ active: index === activeLayer }"
-              v-for="(item, index) in selectValue"
-              v-text="item.name"
-              :key="index"
-              @click="activeLayer = index"
-            ></li>
-          </ul>
+    <div class="cascader-down-box">
+      <transition name="slide-toggle">
+        <div v-if="type==='card'" class="cascader-down card" v-show="show" @click="_stopPropagation">
+          <p class="tips" v-text="tipsText" v-if="tipsText"></p>
+          <div v-if="selectText.length" class="cascader-tab">
+            <ul class="clearfix">
+              <li
+                :class="{ active: index === activeLayer }"
+                v-for="(item, index) in selectText"
+                v-show="selectValue.length>=index"
+                v-text="selectValue[index]?selectValue[index].name:item"
+                :key="index"
+                @click="activeLayer = index"
+              ></li>
+            </ul>
+          </div>
+          <div class="cascader-area">
+            <ul class="clearfix">
+              <li
+                v-for="(item, index) in children"
+                :title="item.name"
+                :key="index"
+              >
+                <a v-text="item.name" @click="_childrenClick(item,index)"></a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="cascader-area">
-          <ul class="clearfix">
-            <li
-              v-for="(item, index) in children"
-              :title="item.name"
-              :key="index"
-            >
-              <a v-text="item.name" @click="_childrenClick(item)"></a>
-            </li>
-          </ul>
+        <div v-else class="cascader-down" v-show="show">
+          <div class=" first" @click="_stopPropagation">
+            <p class="tips" v-text="tipsText" v-if="tipsText"></p>
+            <div class="cascader-area">
+              <ul class="clearfix">
+                <li
+                  :class="{
+                    active:index===firstIndex
+                  }"
+                  v-for="(item, index) in firstList"
+                  :title="item.name"
+                  :key="index"
+                >
+                  <a v-text="item.name" @click="_childrenClick(item,index,0)"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="second" v-show="selectValue[0]&&selectValue[0].name" @click="_stopPropagation">
+            <p class="tips" v-text="tipsText" v-if="tipsText"></p>
+            <div class="cascader-area">
+              <ul class="clearfix">
+                <li
+                  :class="{
+                    active:index===secondIndex
+                  }"
+                  v-for="(item, index) in secondList"
+                  :title="item.name"
+                  :key="index"
+                >
+                  <a v-text="item.name" @click="_childrenClick(item,index,1)"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="third" v-show="selectValue[1]&&selectValue[1].name" @click="_stopPropagation">
+            <p class="tips" v-text="tipsText" v-if="tipsText"></p>
+            <div class="cascader-area">
+              <ul class="clearfix">
+                <li
+                  :class="{
+                    active:index===thirdIndex
+                  }"
+                  v-for="(item, index) in thirdList"
+                  :title="item.name"
+                  :key="index"
+                >
+                  <a v-text="item.name" @click="_childrenClick(item,index,2)"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
-    </transition>
+      </transition>
+    </div>
   </div>
 </template>
 <script>
-import cityData from "./cityData";
 
 export default {
   name: `HCascader`,
@@ -57,6 +111,9 @@ export default {
       activeLayer: 0, // 当前第几级
       showValue: this.placeholder, // 用于展示的值，格式化后显示于输入框的值
       showPlaceholder: !!this.placeholder,
+      firstIndex: '',
+      secondIndex: '',
+      thirdIndex: '',
     };
   },
   components: {},
@@ -70,19 +127,19 @@ export default {
     tipsText: String, // 下拉框下面的提示文字
     selectText: {
       type: Array,
-      default: function () {
-        return ["请选择省", "请选择市", "请选择区"];
-      },
+      default: () => []
     },
     split: Array, // 分隔符
+    type: {
+      type: String,
+      default: '',
+    },
     data: {
       // 下拉选项数据
       type: Array,
-      default: function () {
-        return cityData || [];
-      },
+      default: () => ["请选择", "请选择", "请选择"]
     },
-    clear: {
+    clearable: {
       // 显示清空按钮
       type: Boolean,
       default: true,
@@ -131,10 +188,7 @@ export default {
         this.activeLayer = length - 1;
         this.showValue = this._formatValue();
       } else {
-        this.selectValue.push({
-          name: this.selectText[0],
-          index: 0,
-        });
+        this.selectValue = [];
       }
     },
     _setDefaultValue(data, index) {
@@ -149,34 +203,43 @@ export default {
         }
       }
     },
-    _childrenClick(item) {
+    _childrenClick(item, index, activeLayer) {
+      if (activeLayer !== undefined) {
+        this.activeLayer = activeLayer
+      }
       if (item.hasChild) {
         if (this.activeLayer === 0) {
           this.selectValue.splice(0, this.selectValue.length); // 清空
           // 写入当前项
           this.selectValue.push({
             name: item.name,
-            index: item.index, // 当前值在数据组中的位置，for时就可以直接找到当前项
+            index: index, // 当前值在数据组中的位置，for时就可以直接找到当前项
           });
           // 写入第二项
+          this.firstIndex = index
+          this.secondIndex = ''
+          this.thirdIndex = ''
           this.selectValue.push({
             name: this.selectText[1],
           });
         } else if (this.activeLayer === 1) {
           // 将请选择修改为当前选择
+          this.secondIndex = index
+          this.thirdIndex = ''
           this.selectValue[1] = {
             name: item.name,
-            index: item.index,
+            index: index,
           };
           // 将第三级设为请选择
-          this.selectValue[2] = { name: this.selectText[2] };
+          this.selectValue[2] = {name: this.selectText[2]};
         }
         this.activeLayer++; // 跳到下一级
       } else {
         // 关闭下拉，将值给输入框，这里有可能是第二级
+        this.thirdIndex = index
         this.selectValue[this.activeLayer] = {
           name: item.name,
-          index: item.index,
+          index: index,
         };
         // 如果只有二级时，这里清除下第三级，保证不出错
         if (this.activeLayer === 1) {
@@ -186,6 +249,7 @@ export default {
         this.show = false;
         this.showPlaceholder = false;
       }
+      console.log('this.selectValue', this.activeLayer, this.selectValue)
     },
     _formatValue(type) {
       // 将数组转为文本显示出来
@@ -210,7 +274,7 @@ export default {
       e.stopPropagation();
     },
     _clearClick() {
-      this.showValue = "";
+      this.showValue = this.placeholder;
       this.selectValue = [];
       this.activeLayer = 0;
       this.$nextTick(() => {
@@ -222,29 +286,63 @@ export default {
     },
   },
   computed: {
-    children() {
-      // 根据selectValue和当前的级数
-      let array = [];
+    firstList() {
       let data = this.data;
-      if (this.activeLayer === 0) {
-      } else if (this.activeLayer === 1) {
-        // 根据索引直接找到当前的子级，省去一级级的遍历
+      let array = [];
+      for (let i in data) {
+        array.push({
+          name: data[i].name || data[i],
+          hasChild: !!data[i].children,
+          index: i,
+        });
+      }
+      return array;
+    },
+    secondList() {
+      if (this.activeLayer >= 1) {
+        let array = [];
+        let data = this.data;
         const index = this.selectValue[0].index;
         data = this.data[index].children;
-      } else if (this.activeLayer === 2) {
+        for (let i in data) {
+          array.push({
+            name: data[i].name || data[i],
+            hasChild: !!data[i].children,
+            index: i,
+          });
+        }
+        return array;
+      }
+      return []
+    },
+    thirdList() {
+      if (this.activeLayer === 2) {
+        let array = [];
+        let data = this.data;
         const index = this.selectValue[0].index;
         const data1 = this.data[index].children;
         const index2 = this.selectValue[1].index;
         data = data1[index2].children;
+        for (let i in data) {
+          array.push({
+            hasChild: !!data[i].children,
+            name: data[i].name || data[i],
+            index: i,
+          });
+        }
+        return array;
       }
-      for (let i in data) {
-        array.push({
-          name: data[i].name || data[i],
-          index: i,
-          hasChild: !!data[i].children,
-        });
+      return []
+    },
+    children() {
+      // 根据selectValue和当前的级数
+      if (this.activeLayer === 0) {
+        return this.firstList
+      } else if (this.activeLayer === 1) {
+        return this.secondList
+      } else {
+        return this.thirdList
       }
-      return array;
     },
   },
   mounted() {
@@ -273,30 +371,48 @@ export default {
     width: 100%;
     display: block;
     z-index: 100;
-    border-left: 1px solid #f60;
-    border-right: 1px solid #f60;
+    //border-left: 1px solid #f60;
+    //border-right: 1px solid #f60;
     box-sizing: border-box;
   }
+
   .h-input-control {
     position: relative;
+    cursor: pointer;
+    line-height: 24px;
+    min-height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background: none;
+    outline: none;
+    padding: 5px;
+    font-size: 14px;
+    //overflow: hidden;
+    box-sizing: border-box;
+    width: 300px;
+
     &:after {
       top: 0;
       content: "\e61a";
       display: block;
       position: absolute;
       right: 10px;
-      height: 38px;
-      line-height: 38px;
+      height: 36px;
+      line-height: 36px;
       transition: all 0.2s;
       cursor: pointer;
       font-family: "iconfont";
       font-size: 14px;
     }
+
     &.focus {
+      border: 1px solid #39c5bb;
+
       &:after {
         transform: rotate(180deg);
       }
     }
+
     &:hover {
       + .icon-clear {
         visibility: visible;
@@ -304,12 +420,11 @@ export default {
       }
     }
   }
-  .icon-close {
-    visibility: hidden;
-    opacity: 0;
+
+  .clearable {
     transition: all 0.3s;
     position: absolute;
-    right: 0;
+    right: 30px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
@@ -319,75 +434,185 @@ export default {
     height: 30px;
     text-align: center;
     line-height: 30px;
+
     &:after {
       color: #999;
     }
-    &:hover {
-      visibility: visible;
-      opacity: 1;
-    }
   }
-  .cascader-down {
-    position: absolute;
-    left: 0;
-    top: 37px;
-    width: 360px;
-    border: 1px solid #f60;
-    background: #fff;
-    z-index: 99;
-    padding: 10px;
-    overflow: hidden;
-    border-radius: 3px;
-    .tips {
-      margin-bottom: 5px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #666;
-    }
-    .cascader-tab {
-      height: 25px;
-      line-height: 25px;
-      border-bottom: 1px solid #ddd;
-      li {
-        float: left;
-        padding: 0 10px;
-        margin-right: 10px;
-        border: 1px solid #ddd;
-        color: #2d8cf0;
-        font-weight: 700;
+
+  .cascader-down-box {
+    position: relative;
+    bottom: 0;
+
+    .cascader-down {
+      position: absolute;
+      top: 5px;
+      z-index: 99;
+      //overflow-x: hidden;
+      border-radius: 3px;
+
+      .first {
+        position: relative;
+        left: 0;
+        height: 200px;
+        width: 160px;
+        border: 1px solid #39c5bb;
         background: #fff;
-        cursor: pointer;
-        height: 24px;
-        line-height: 24px;
-        border-bottom: 0;
-        overflow-x: hidden;
-        &.active {
-          height: 25px;
+      }
+
+      .second {
+        height: 200px;
+        width: 160px;
+        border: 1px solid #39c5bb;
+        background: #fff;
+        position: absolute;
+        top: 0;
+        left: 159px;
+      }
+
+      .third {
+        height: 200px;
+        width: 160px;
+        border: 1px solid #39c5bb;
+        background: #fff;
+        top: 0;
+        position: absolute;
+        left: 318px;
+      }
+
+      &.card {
+        width: 360px;
+        height: 200px;
+        border: 1px solid #39c5bb;
+        background: #fff;
+
+        .cascader-area {
+          li {
+            float: left;
+            width: 85px;
+          }
         }
       }
-    }
-    .cascader-area {
-      clear: both;
-      padding: 10px 5px 5px;
-      overflow: hidden;
-      li {
-        float: left;
-        width: 85px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        padding-right: 3px;
-        box-sizing: border-box;
-        a {
+
+      .tips {
+        margin-bottom: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #666;
+      }
+
+      .cascader-tab {
+        height: 25px;
+        line-height: 25px;
+        border-bottom: 1px solid #ddd;
+
+        li {
+          float: left;
+          padding: 0 10px;
+          margin-right: 10px;
+          border: 1px solid #ddd;
+          color: #2d8cf0;
+          font-weight: 700;
+          background: #fff;
           cursor: pointer;
-          font-size: 12px;
-          color: #666;
-          &:hover {
-            color: #f60;
+          height: 24px;
+          line-height: 24px;
+          border-bottom: 0;
+
+          &.active {
+            height: 25px;
+          }
+        }
+      }
+
+      .cascader-area {
+        clear: both;
+        overflow: hidden;
+
+        .clearfix {
+          margin: 0;
+          padding: 0;
+        }
+
+        li {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          padding-right: 3px;
+          box-sizing: border-box;
+
+          a {
+            padding: 5px 10px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            display: block;
+
+            &:hover {
+              color: #39c5bb;
+              background-color: #eee;
+            }
+          }
+
+          &.active {
+            a {
+              background-color: #39c5bb;
+              color: #333;
+              font-weight: 500;
+            }
           }
         }
       }
     }
+  }
+}
+
+/*transition通用下拉动画 select dataPicker……*/
+.slide-toggle-enter-active {
+  animation: slideDown 0.3s;
+  transform-origin: center top;
+}
+
+.slide-toggle-leave-active {
+  animation: slideUp 0.3s;
+  transform-origin: center top;
+}
+
+.top .slide-toggle-enter-active,
+.top .slide-toggle-leave-active {
+  transform-origin: center bottom;
+}
+
+.slide-toggle-top-enter-active {
+  animation: slideDown 0.3s;
+  transform-origin: center bottom;
+}
+
+.slide-toggle-top-leave-active {
+  animation: slideUp 0.3s;
+  transform-origin: center bottom;
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(0);
   }
 }
 </style>

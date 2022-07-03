@@ -20,15 +20,16 @@
 </template>
 <script>
 export default {
-  name: "hCheckbox",
+  name: "HCheckbox",
   data() {
     return {
       checked: this.modelValue,
     };
   },
   watch: {
-    modelValue() {
-      this.checked = this.modelValue;
+    modelValue(v) {
+      console.log('this.modelValue', this.modelValue)
+      this.checked = v;
     },
   },
   model: {
@@ -45,8 +46,8 @@ export default {
       type: [String, Boolean, Number],
       default: true,
     },
+    modelValue: {},
   },
-  components: {},
   methods: {
     _change(e) {
       let value = this.checked;
@@ -60,12 +61,16 @@ export default {
       this.$emit("change", value, this.label);
     },
   },
+  mounted() {
+    console.log('disabled', this.disabled, this.modelValue, this.value)
+  }
 };
 </script>
 
 <style lang="less" scoped>
 .h-checkbox {
   cursor: pointer;
+
   input {
     opacity: 0;
     outline: none;
@@ -75,14 +80,18 @@ export default {
     height: 0;
     z-index: -1;
   }
+
   span {
     display: inline-block;
     vertical-align: middle;
   }
+
   /*默认*/
+
   .h-checkbox-text {
     margin-left: 5px;
   }
+
   .h-checkbox-inner {
     border: 1px solid #dcdfe6;
     background-color: #fff;
@@ -94,8 +103,9 @@ export default {
     z-index: 1;
     transition: border-color 0.3s, background-color 0.3s;
     font-family: "iconfont";
+
     &:after {
-      content: "\e88c";
+      content: "\e750";
       width: 100%;
       height: 14px;
       font-size: 12px;
@@ -107,14 +117,18 @@ export default {
       transform: scale(0.5);
       font-weight: 700;
     }
+
     &:hover {
       opacity: 0.8;
     }
   }
+
   /*选中状态*/
+
   input:checked + .h-checkbox-inner {
     background-color: #409eff;
     border-color: #409eff;
+
     &:after {
       opacity: 1;
       visibility: visible;
@@ -122,23 +136,30 @@ export default {
       transform: scale(1);
     }
   }
+
   /*禁用状态*/
+
   input:disabled + .h-checkbox-inner {
     background-color: #edf2fc;
     border-color: #dcdfe6;
     cursor: not-allowed;
+
     &:after {
       color: #c0c4cc;
     }
   }
+
   &.disabled {
     cursor: not-allowed;
   }
+
   /*部分选择状态*/
+
   &.some-select {
     .h-checkbox-inner {
       border: 1px solid #409eff;
       background-color: #409eff;
+
       &:after {
         height: 5px;
         background: #fff;

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-radio-group">
+  <div :class="{'h-radio-group':true,'h-radio-vertical':vertical}">
     <Radio
       v-for="(item, index) in data"
       :key="index"
@@ -9,6 +9,7 @@
       @input="_change(item, $event)"
       >{{ item.label }}
     </Radio>
+<!--    <slot/>-->
   </div>
 </template>
 <script>
@@ -33,6 +34,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    vertical: {
+      // 控制整个组
+      type: Boolean,
+      default: false,
+    },
   },
   components: { Radio },
   methods: {
@@ -41,6 +47,23 @@ export default {
       this.$emit("change", value, item);
     },
   },
-  mounted() {},
+  mounted() {
+    // console.log('slot',this.$slots)
+    // if (this.vertical) {
+    //   for (let i = 0; i < this.$children.length; i++) {
+    //     this.$children[i].vertical = true
+    //   }
+    // }
+  },
 };
 </script>
+
+<style lang="less" scoped>
+.h-radio-vertical {
+  display: flex;
+  flex-direction: column;
+  .h-radio {
+    margin-bottom: 20px;
+  }
+}
+</style>

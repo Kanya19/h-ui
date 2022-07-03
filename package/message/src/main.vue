@@ -5,7 +5,7 @@
         class="h-message__body"
         :class="[
         'h-message',
-        `h-message--${ type }`,
+        'h-message--${ type }',
         customClass]"
         v-show="visible"
         @mouseenter="clearTimer"
@@ -60,7 +60,7 @@
     computed: {
       typeClass() {
         return this.type && !this.iconClass
-          ? `h-message__icon h-icon-${typeMap[this.type]}`
+          ? 'h-message__icon h-icon-${typeMap[this.type]}'
           : '';
       }
     },

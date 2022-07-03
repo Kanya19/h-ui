@@ -34,16 +34,16 @@
         v-if="!filterable"
         :placeholder="!text ? placeholder : ''"
       >
-        <ul
+        <div
           v-if="multiple && text"
           class="multiple-text"
           :placeholder="!text ? placeholder : ''"
         >
-          <li v-for="(item, index) in text.split(',')" :key="index">
+          <div class="multiple-item" v-for="(item, index) in text.split(',')" :key="index">
             <span v-text="item"></span>
-            <i class="icon-error" @click.stop="_deleteText(item, index)"></i>
-          </li>
-        </ul>
+            <i class="h-icon-close" @click.stop="_deleteText(item, index)"></i>
+          </div>
+        </div>
         <span v-else-if="text" v-text="text"></span>
       </div>
       <span class="icon-group">
@@ -58,41 +58,42 @@
     <div v-if="$slots.default">
       <slot></slot>
     </div>
-    <transition :name="transition">
-      <div
-        :class="{ ['h-select-down']: true, [downClass]: downClass }"
-        v-show="show && filterOption.length > 0"
-        :style="showLiNum"
-        v-if="!$slots.template"
-        ref="selectDown"
-      >
-        <ul>
-          <li
+    <div class="h-select-down-box">
+      <transition :name="transition">
+        <div
+          :class="{ ['h-select-down']: true, [downClass]: downClass }"
+          v-show="show && filterOption.length > 0"
+          :style="showLiNum"
+          v-if="!$slots.template"
+          ref="selectDown"
+        >
+          <div
             v-for="(item, index) in filterOption"
             @click="_itemClick(item, $event)"
             :class="{
               disabled: item.disabled,
               active: _getActive(item),
               [item.className]: item.className,
+              'h-select-option':true
             }"
             ref="li"
             :key="index"
             :title="item.label || item.value"
           >
             {{ item.label || item.value }}
-          </li>
-        </ul>
-      </div>
-      <div
-        :class="{ ['h-select-down']: true, [downClass]: downClass }"
-        v-if="$slots.template"
-        v-show="show"
-        ref="selectDown"
-        :style="showLiNum"
-      >
-        <slot name="template"></slot>
-      </div>
-    </transition>
+          </div>
+        </div>
+        <div
+          :class="{ ['h-select-down']: true, [downClass]: downClass }"
+          v-if="$slots.template"
+          v-show="show"
+          ref="selectDown"
+          :style="showLiNum"
+        >
+          <slot name="template"></slot>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 <script>
@@ -168,7 +169,6 @@ export default {
   },
   components: {},
   mounted() {
-    console.log("ok");
     this._setFirstText();
     if (this.$slots.template) {
       // 自定模板时没办法将值和value对应起来
@@ -179,8 +179,6 @@ export default {
     if (this.filterable) {
       this.keywords = this.value ? this.text : "";
     }
-    console.log("$slots");
-    console.log(this.$slots);
   },
   watch: {
     show(value) {
@@ -433,10 +431,11 @@ export default {
   },
 };
 </script>
-<style lang="less">
+<style lang="less" scoped>
 .h-select {
   display: inline-block;
   position: relative;
+
   .h-select-control {
     .icon-group {
       display: block;
@@ -451,15 +450,19 @@ export default {
       text-align: center;
       line-height: 30px;
     }
+
     .icon-arrow {
       font-size: 14px;
       display: inline-block;
       transition: all 0.3s;
+
       &.open {
         transform: translateY(0) rotate(180deg);
       }
     }
+
     /*清空*/
+
     .icon-close {
       z-index: 2;
       font-size: 14px;
@@ -467,14 +470,55 @@ export default {
       display: none;
       margin-right: 6px;
     }
+
     /*鼠标滑过显示清空*/
+
     &.show-clear:hover {
       .icon-close {
         display: inline-block;
       }
     }
   }
+
   .h-input-control {
+    line-height: 24px;
+    min-height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background: none;
+    outline: none;
+    position: relative;
+    padding: 5px;
+    font-size: 14px;
+    //overflow: hidden;
+    box-sizing: border-box;
+    width: 300px;
+    cursor: pointer;
+
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+    &:hover {
+      border-color: #ccc;
+    }
+
+    &:focus,
+    &.focus {
+      border-color: #39c5bb;
+    }
+
+    &.placeholder {
+      color: #999;
+    }
+
+    /*禁用状态*/
+
+    &.disabled {
+      background: #eee;
+      cursor: not-allowed;
+    }
+
     &:empty:before {
       content: attr(placeholder);
       font-size: 14px;
@@ -483,11 +527,20 @@ export default {
       padding-top: 10px;
       cursor: text;
     }
+
+    .h-form-item-error {
+      .h-input-control {
+        border-color: red;
+      }
+    }
   }
+
   /*下拉*/
+
   .h-input-control.placeholder {
     color: #999;
   }
+
   &.top {
     // 设置向上弹出样式
     .h-select-down {
@@ -495,80 +548,102 @@ export default {
       bottom: 37px;
     }
   }
+
   .multiple-text {
     display: flex;
     align-items: center;
-    li {
-      line-height: inherit;
-      margin-right: 5px;
-      height: 36px;
+    flex-wrap: wrap;
+
+    .multiple-item {
+      line-height: 20px;
+      border: 1px solid #eee;
+      background-color: #eee;
+      margin: 2px;
+      padding: 0 2px;
     }
+
     i {
       cursor: pointer;
+      font-size: 10px;
     }
   }
 }
-.h-select-down {
-  position: absolute;
-  left: 0;
-  top: 37px;
-  background: #fff;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  width: 100%;
-  z-index: 50;
-  ul {
-    padding: 5px 0;
-  }
-  li {
-    list-style: none;
-    height: 25px;
-    line-height: 25px;
-    padding: 0 10px;
-    margin: 0;
-    cursor: pointer;
-    width: 100%;
-    display: block;
+.h-select-down-box {
+  position: relative;
+  bottom: 0;
+  .h-select-down {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
+    border: 1px solid #ddd;
     box-sizing: border-box;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    &:hover {
-      background: #dcdfe6;
-    }
-    /*选中状态*/
-    &.active {
-      background: #a0cfff;
-    }
-    /*禁用状态*/
-    &.disabled {
-      background: #ddd;
-      color: #999;
-      cursor: not-allowed;
+    width: 100%;
+    z-index: 50;
+    padding: 5px 0;
+
+    li,.h-select-option {
+      list-style: none;
+      height: 25px;
+      line-height: 25px;
+      padding: 0 10px;
+      margin: 0;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      box-sizing: border-box;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+
+      &:hover {
+        background: rgba(238, 238, 238, 0.8);
+      }
+
+      /*选中状态*/
+
+      &.active {
+        font-weight: 500;
+        background: rgba(57, 197, 187, 0.5);
+      }
+
+      /*禁用状态*/
+
+      &.disabled {
+        background: #ddd;
+        color: #999;
+        cursor: not-allowed;
+      }
     }
   }
 }
+
 /*transition通用下拉动画 select dataPicker……*/
 .slide-toggle-enter-active {
   animation: slideDown 0.3s;
   transform-origin: center top;
 }
+
 .slide-toggle-leave-active {
   animation: slideUp 0.3s;
   transform-origin: center top;
 }
+
 .top .slide-toggle-enter-active,
 .top .slide-toggle-leave-active {
   transform-origin: center bottom;
 }
+
 .slide-toggle-top-enter-active {
   animation: slideDown 0.3s;
   transform-origin: center bottom;
 }
+
 .slide-toggle-top-leave-active {
   animation: slideUp 0.3s;
   transform-origin: center bottom;
 }
+
 @keyframes slideDown {
   0% {
     opacity: 0;
@@ -579,6 +654,7 @@ export default {
     transform: scaleY(1);
   }
 }
+
 @keyframes slideUp {
   0% {
     opacity: 1;

@@ -12,7 +12,7 @@
     ]
 -->
 <template>
-  <div :class="`h-checkbox-group`">
+  <div :class="'h-checkbox-group'">
     <Checkbox
       v-for="(item, index) in data"
       :key="index"

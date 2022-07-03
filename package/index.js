@@ -23,7 +23,8 @@ const components = [
   Select,
   CheckboxGroup,
   Option,
-  Cascader
+  Cascader,
+  RadioGroup,
 ]
 
 const install = function (Vue) {

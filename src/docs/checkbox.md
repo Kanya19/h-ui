@@ -1,55 +1,71 @@
 <style lang="stylus" scoped>
-  .demo-block {
+  .demo-block
     >div {
       margin-bottom: 20px;
-      
+
       &:last-child {
         margin-bottom: 0;
       }
     }
-  }
+
 </style>
+<script>
+export default {
+  data() {
+    return {
+      checked1: false,
+      checked2: true
+    }
+  }
+}
+</script>
 
 # checkbox 多选框
 
 ----
 
-
 ### 基础用法
 
 <div class="demo-block">
-  <h-checkbox :disabled="true" :border="true"  v-model="checked">多选框</h-checkbox>
+  <h-checkbox :disabled="true">多选框</h-checkbox>
+  <h-checkbox v-model="checked1">多选框</h-checkbox>
+  <h-checkbox v-model="checked2">多选框</h-checkbox>
 </div>
 
 <script>
 export default {
   data() {
     return {
-      checked: true
+      checked1: false,
+      checked2: true
     }
   }
 }
 </script>
-:::demo 
 
-
+:::demo
 
 ```html
+
 <div>
-  <h-checkbox v-model="checked">多选框</h-checkbox>
+  <h-checkbox :disabled="true">多选框</h-checkbox>
+  <h-checkbox v-model="checked1">多选框</h-checkbox>
+  <h-checkbox v-model="checked2">多选框</h-checkbox>
 </div>
 
 <script>
-export default {
-  data() {
-    return {
-      checked: true
+  export default {
+    data() {
+      return {
+        checked1: false,
+        checked2: true
+      }
     }
   }
-}
 </script>
 
 ```
+
 :::
 
 <!-- ### Attributes

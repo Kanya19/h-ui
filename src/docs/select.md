@@ -1,27 +1,13 @@
 <style lang="stylus" scoped>
-  .demo-block {
+  .demo-block
     >div {
       margin-bottom: 20px;
-      
+
       &:last-child {
         margin-bottom: 0;
       }
-    }
   }
 </style>
-
-# select 下拉框
-
-----
-
-
-### 基础用法
-
-<div class="demo-block">
-  <h-select :options="options" v-model="value" />
-  <div>{{value}}</div>
-</div>
-
 <script>
 export default {
   data() {
@@ -42,34 +28,75 @@ export default {
           value: '选项5',
           label: '北京烤鸭'
         }],
-        value: ''
+        value: '',
+        value2: []
     }
   }
 }
 </script>
-:::demo 
 
+# select 下拉框
 
+----
+
+### 基础用法
+
+<div class="demo-block">
+  <h-select :options="options" v-model="value" />
+</div>
+
+:::demo
 
 ```html
+
 <div>
   <h-checkbox>多选框</h-checkbox>
 </div>
 
 <script>
-export default {
-  data() {
-    return {
-      checked: true
+  export default {
+    data() {
+      return {
+        checked: true
+      }
     }
   }
-}
 </script>
 
 ```
+
 :::
 
-### Attributes
+### 基础用法
+
+<div class="demo-block">
+  <h-select :multiple="true" :options="options" v-model="value2" />
+</div>
+
+:::demo
+
+```html
+
+<div>
+  <h-checkbox>多选框</h-checkbox>
+</div>
+
+<script>
+  export default {
+    data() {
+      return {
+        checked: true
+      }
+    }
+  }
+</script>
+
+```
+
+:::
+
+<!-- ### Attributes
+
 | 参数     | 说明           | 类型    | 可选值                                             | 默认值 |
 | -------- | -------------- | ------- | -------------------------------------------------- | ------ |
 | size     | 尺寸           | string  | medium / small / mini                              | —      |
@@ -80,3 +107,4 @@ export default {
 | loading  | 是否加载中状态 | boolean | —                                                  | false  |
 | disabled | 是否禁用状态   | boolean | —                                                  | false  |
 | icon     | 图标类名       | string  | —                                                  | —      |
+

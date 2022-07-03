@@ -104,7 +104,7 @@
       "path": "/component",
       "items": [
         {
-          "desc": "Cascader 联级选择器",
+          "desc": "cascader 联级选择器",
           "name": "cascader",
           "path": "/cascader"
         }
