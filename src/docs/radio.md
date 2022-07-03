@@ -18,10 +18,10 @@
 ### 基础用法
 
 <div class="demo-block">
-  <h-radio-group v-model="value">
-    <h-radio :label="1">多选框1</h-radio>
-    <h-radio :label="2">多选框2</h-radio>
-  </h-radio-group>
+  <!-- <h-radio-group v-model="value"> -->
+    <h-radio :value="1">多选框1</h-radio>
+    <h-radio :value="2">多选框2</h-radio>
+  <!-- </h-radio-group> -->
   {{value}}
 </div>
 <script>

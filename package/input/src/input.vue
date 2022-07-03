@@ -1,47 +1,58 @@
 <template>
-  <div
-    class="h-input"
-    :class="[
-      {
-        'is-disabled': disabled,
-      },
-    ]"
-  >
+  <div :class="`h-form-input`">
     <input
-      :readonly="readonly"
-      :name="name"
-      :autofocus="autofocus"
-      @blur="handleBlur"
-      @focus="handleFocus"
-      @change="handleChange"
-      @keyup="handleKeyup"
-      @input="changeInput"
-      :disabled="disabled"
-      class="h-input__inner"
+      v-bind="$attrs"
       :value="value"
-      :placeholder="placeholder"
+      :type="inputType"
+      :class="{
+        disabled: disabled,
+        ['h-input-control']: true,
+        'has-prefix': $slots.prefix || prefixIcon,
+      }"
+      :disabled="disabled"
+      @input="_input"
+      @focus="_focus"
+      @blur="_blur"
+      ref="input"
     />
-    <span class="h-input__clearable" v-if="clearable && value" @click="clear">
-      <i style="font-size: 12px" class="h-icon-close"></i>
+    <span class="prefix-icon" v-if="$slots.prefix || prefixIcon">
+      <i :class="[prefixIcon]" v-if="prefixIcon"></i>
+      <slot name="prefix"></slot>
     </span>
-  </div>  
+    <span class="suffix-icon">
+      <slot name="suffix"></slot>
+      <i :class="[suffixIcon]" v-if="suffixIcon"></i>
+      <i class="icon-close" v-if="clear && value" @click.stop="_clear"></i>
+      <i
+        :class="{ 'icon-eye-close': eyeShow, 'icon-eye': !eyeShow }"
+        v-if="value && showEye && type === 'password'"
+        @click.stop="eyeShow = !eyeShow"
+      ></i>
+    </span>
+  </div>
 </template>
 <script>
 export default {
   name: "HInput",
-
+  data() {
+    return {
+      inputType: this.type, // 密码框时要切换，所以...
+      eyeShow: false,
+    };
+  },
+  inheritAttrs: false,
+  watch: {
+    eyeShow(value) {
+      // 显示或隐藏密码
+      this.inputType = value ? "text" : "password";
+    },
+    value(val) {
+      console.log(val);
+    },
+  },
   props: {
+    value: null,
     disabled: {
-      type: Boolean,
-      default: false,
-    },
-    name: String,
-    autofocus: Boolean,
-    readonly: {
-      type: Boolean,
-      default: false,
-    },
-    clearable: {
       type: Boolean,
       default: false,
     },
@@ -49,90 +60,126 @@ export default {
       type: String,
       default: "text",
     },
-    value: {
-      type: String,
-      default: "",
+    validateEvent: {
+      type: Boolean,
+      default: true,
     },
-    placeholder: {
-      type: String,
-      default: "",
+    clear: {
+      type: Boolean,
+      default: false,
     },
+    showEye: {
+      // 密码框显示眼睛，可切换为明文密码
+      type: Boolean,
+      default: false,
+    },
+    change: Function,
+    prefixIcon: String, // 前缀icon
+    suffixIcon: String, // 后缀icon
   },
-  computed: {
-    inputClearable() {
-      return this.clearable;
-    },
-  },
+  components: {},
   methods: {
-    handleKeyup(e) {
-      this.$emit("keyUp", e);
+    _blur(e) {
+      // const value = e.target.value
+      this._emit("blur", e);
     },
-    handleChange() {
-      this.$emit("change", this.value, this.name);
+    _input(e) {
+      const value = e.target.value;
+      this.$emit("input", value);
+      this.change && this.change(e);
     },
-    clear() {
-      this.$emit("input", "");
-      this.$emit("clear");
+    _focus(e) {
+      this._emit("focus", e);
     },
-    handleFocus(e) {
-      this.$emit("focus", e);
+    _clear() {
+      this._emit("input", "");
     },
-    handleBlur(e) {
-      this.$emit("blur", e);
+    _emit(type, e) {
+      this.$emit(type, e);
+      // this[type] && this[type](e)
     },
-    changeInput(e) {
-      this.$emit("input", e.target.value);
+    focus() {
+      this.$refs.input.focus();
+    },
+    blur() {
+      this.$refs.input.blur();
     },
   },
+  computed: {},
+  mounted() {},
 };
 </script>
 
-<style scoped>
-.h-input {
-  width: 180px;
+<style lang="less">
+.h-form-input {
   display: inline-block;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.h-input__inner {
-  cursor: pointer;
-  -webkit-appearance: none;
-  background-color: #fff;
-  background-image: none;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
-  box-sizing: border-box;
-  color: #606266;
-  display: inline-block;
-  font-size: inherit;
-  height: 40px;
-  line-height: 40px;
-  outline: none;
-  padding: 0 15px;
-  transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-  width: 100%;
-}
-
-.h-input__inner:hover {
-  border-color: #c0c4cc;
-}
-.h-input__inner:focus {
-  outline: none;
-  border-color: #39c5bb;
-}
-.h-input.is-disabled .h-input__inner {
-  background-color: #f5f7fa;
-  border-color: #dcdfe6;
-  color: #c0c4cc;
-  cursor: not-allowed;
-}
-.h-input.is-disabled .h-input__inner:hover {
-  border-color: #dcdfe6;
-}
-.h-input__clearable {
   position: relative;
-  font-size: 12px;
-  right: 30px;
+  .suffix-icon,
+  .prefix-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .prefix-icon {
+    left: 0;
+    right: auto;
+  }
+  i {
+    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    color: #999;
+  }
+  .icon-close {
+    display: none;
+    font-size: 14px;
+  }
+  &:hover {
+    .icon-close {
+      display: inline-block;
+    }
+  }
+  .has-prefix {
+    padding-left: 30px;
+  }
+}
+.h-input-control {
+  height: 38px;
+  line-height: 38px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  background: none;
+  outline: none;
+  padding: 0 10px;
+  font-size: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 300px;
+  &:hover {
+    border-color: #ccc;
+  }
+  &:focus,
+  &.focus {
+    border-color: #f60;
+  }
+  &.placeholder {
+    color: #999;
+  }
+  /*禁用状态*/
+  &.disabled {
+    background: #eee;
+    cursor: not-allowed;
+  }
+  .h-form-item-error {
+    .h-input-control {
+      border-color: red;
+    }
+  }
 }
 </style>

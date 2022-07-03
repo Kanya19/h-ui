@@ -5,9 +5,8 @@ import Message from './message/index.js';
 import Carousel from './carousel/index.js';
 import CarouselItem from './carousel-item/index.js';
 import Input from './input/index.js';
-import Checkbox from './checkbox/index.js';
-import Radio from './radio/index.js';
-import RadioGroup from './radio-group/index.js';
+import { Checkbox, CheckboxGroup } from './checkbox/index.js';
+import { Radio, RadioGroup } from './radio/index.js';
 import Select from './select/index.js';
 import Option from './option/index.js';
 import Cascader from './cascader/index.js';
@@ -21,8 +20,8 @@ const components = [
   Input,
   Checkbox,
   Radio,
-  RadioGroup,
   Select,
+  CheckboxGroup,
   Option,
   Cascader
 ]

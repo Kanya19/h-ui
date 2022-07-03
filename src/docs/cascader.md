@@ -2,85 +2,19 @@
 
 ### 基本用法
 <template>
-	<h-cascader :list = "list" @change = "getList"></h-cascader>
+	<div>
+    <p>当前值：{{value1}}</p>
+    <h-cascader v-model="value1" placeholder="请选择"/>
+  </div>
 </template>
 <script>
   export default {
     data() {
       return {
-        list: [
-                {
-                  value: "shejiyuanze",
-                  label: "设计原则",
-                  children: [
-                    {
-                      value: "yizhi",
-                      label: "一致",
-                      children: [
-                        {
-                          value: "tiqiu",
-                          label: "踢球",
-                          disabled: true,
-                        },
-                        {
-                          value: "shuijiao",
-                          label: "睡觉",
-                        },
-                      ],
-                    },
-                    {
-                      value: "tuanjie",
-                      label: "团结",
-                      children: [
-                        {
-                          value: "chifan",
-                          label: "吃饭",
-                          disabled: true,
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  value: "kaoshiguize",
-                  label: "考试规则",
-                  children: [
-                    {
-                      value: "anjing",
-                      label: "安静",
-                      children: [
-                        {
-                          value: "zuobi",
-                          label: "作弊",
-                        },
-                        {
-                          value: "jiaojuan",
-                          label: "交卷",
-                          disabled: true,
-                        },
-                      ],
-                    },
-                    {
-                      value: "lianhe",
-                      label: "联合",
-                      children: [
-                        {
-                          value: "shuxue",
-                          label: "数学",
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            }
-         },
-         methods: {
-            getList(data) {
-              console.log(data);
-            },
-         },
+        value1:[]
+      }
    }
+  }
 </script>
 
 :::demo

@@ -10,7 +10,7 @@
   }
 </style>
 
-# checkbox 多选框
+# select 下拉框
 
 ----
 
@@ -18,9 +18,7 @@
 ### 基础用法
 
 <div class="demo-block">
-  <h-select :list="options" v-model="value">
-    <h-option v-for="(item,key) in options" :key="key" :label="item.label" :value="item.value" />
-  </h-select>
+  <h-select :options="options" v-model="value" />
   <div>{{value}}</div>
 </div>
 

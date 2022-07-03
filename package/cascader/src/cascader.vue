@@ -1,353 +1,393 @@
+<!--Created by 337547038 on 2017/12/26.-->
 <template>
-  <div>
-    <div class="selectBox">
-      <div class="selectPar" @click="toggleOption">
-        <input
-          type="text"
-          class="select"
-          placeholder="请选择"
-          :value="selectVal"
-          :disabled="$attrs.avaSearch == '' ? false : true"
-          @input="search($event)"
-        />
+  <div :class="`h-cascader`">
+    <div
+      :class="{
+        ['h-input-control']: true,
+        focus: show,
+        placeholder: showPlaceholder,
+        disabled: disabled,
+      }"
+      v-text="showValue"
+    ></div>
+    <i
+      class="icon-clear"
+      v-if="clear && value.length > 0"
+      @click="_clearClick"
+    ></i>
+    <span class="mask" v-show="show"></span>
+    <transition name="slide-toggle">
+      <div class="cascader-down" v-show="show" @click="_stopPropagation">
+        <p class="tips" v-text="tipsText" v-if="tipsText"></p>
+        <div class="cascader-tab">
+          <ul class="clearfix">
+            <li
+              :class="{ active: index === activeLayer }"
+              v-for="(item, index) in selectValue"
+              v-text="item.name"
+              :key="index"
+              @click="activeLayer = index"
+            ></li>
+          </ul>
+        </div>
+        <div class="cascader-area">
+          <ul class="clearfix">
+            <li
+              v-for="(item, index) in children"
+              :title="item.name"
+              :key="index"
+            >
+              <a v-text="item.name" @click="_childrenClick(item)"></a>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="optionBox">
-        <ul class="optionList" :style="selectStyle" ref="optionList">
-          <li
-            class="option"
-            v-for="item in list"
-            :key="item.value"
-            @click="selectFirst(item)"
-            :style="activedOptionFontStyle1(item)"
-          >
-            <!-- <i class = "el-icon-circle-close"></i> -->
-            <span
-              >{{ item.label }}
-              <b v-if="$attrs.showNum == ''">({{ item.children.length }})</b>
-            </span>
-            <i class="h-icon-return"></i>
-          </li>
-        </ul>
-        <ul
-          class="optionList"
-          :style="selectStyle"
-          ref="optionList"
-          v-if="activedSecord || secordOptionShow"
-        >
-          <li
-            class="option"
-            v-for="item in secordOptionList"
-            :key="item.value"
-            @click="selectSecord(item)"
-            :style="activedOptionFontStyle2(item)"
-          >
-            <span
-              >{{ item.label }}
-              <b v-if="$attrs.showNum == ''">({{ item.children.length }})</b>
-            </span>
-            <i class="h-icon-return"></i>
-          </li>
-        </ul>
-        <ul
-          class="optionList"
-          :style="selectStyle"
-          ref="optionList"
-          v-if="activedThird || thirdOptionShow"
-        >
-          <li
-            class="option lastOption"
-            v-for="item in thirdOptionList"
-            :key="item.value"
-            @click="selectThird(item)"
-            :style="activedOptionFontStyle3(item)"
-          >
-            <i
-              class="h-icon-return"
-              @click.stop="checkSelect(item, 3)"
-              v-if="$attrs.ableChecked == ''"
-            ></i>
-            <span>
-              <i
-                class="h-icon-return"
-                v-if="activedThird == item.label && $attrs.ableChecked !== ''"
-              ></i>
-              <i class="h-icon-return" v-else></i>
-              {{ item.label }}
-            </span>
-          </li>
-        </ul>
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
-
 <script>
+import cityData from "./cityData";
+
 export default {
-  name: "HCascader",
-  props: {
-    list: {
-      type: Array,
-      default: () => [],
-    },
-  },
+  name: `HCascader`,
   data() {
     return {
-      isUp: false,
-      isShow: false,
-      selectVal: "", //选中值
-      secordOptionShow: false,
-      thirdOptionShow: false,
-      secordOptionList: [], //二级列表
-      thirdOptionList: [], //三级列表
-      activedFirst: "",
-      activedSecord: "",
-      activedThird: "",
-      searchText: "", //搜索文本
-      searchList: [], //搜索列表
-      clickList: [], //选中的最终值
+      show: false,
+      selectValue: [], // 暂存的值，加工后的数组，同时保存了当前值所在数组的位置
+      activeLayer: 0, // 当前第几级
+      showValue: this.placeholder, // 用于展示的值，格式化后显示于输入框的值
+      showPlaceholder: !!this.placeholder,
     };
   },
+  components: {},
+  props: {
+    value: Array,
+    placeholder: String,
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    tipsText: String, // 下拉框下面的提示文字
+    selectText: {
+      type: Array,
+      default: function () {
+        return ["请选择省", "请选择市", "请选择区"];
+      },
+    },
+    split: Array, // 分隔符
+    data: {
+      // 下拉选项数据
+      type: Array,
+      default: function () {
+        return cityData || [];
+      },
+    },
+    clear: {
+      // 显示清空按钮
+      type: Boolean,
+      default: true,
+    },
+    change: Function,
+  },
+  watch: {
+    showValue() {
+      const value = this._formatValue(true);
+      this.$emit("input", value);
+      this.$emit("change", value);
+      this.change && this.change(value);
+    },
+  },
   methods: {
-    toggleOption() {
-      //select展开收起切换
-      this.isUp = !this.isUp;
-      this.$refs.optionList.style.height = this.isUp ? "200px" : "0px";
-      this.$refs.optionList.style.opacity = this.isUp ? "1" : "0";
-    },
-    selectFirst(value) {
-      //点击一级列表显示二级列表
-      if (this.$attrs.ableChecked !== "") {
-        this.activedSecord = this.activedSecord ? "" : "";
-        this.activedThird = this.activedThird ? "" : ""; //如果二三级被选了，清除
-      }
-
-      if (this.thirdOptionShow) {
-        this.thirdOptionShow = false;
-      }
-      this.activedFirst = value.label;
-      this.secordOptionList = value.children;
-      this.secordOptionShow = true;
-    },
-    selectSecord(value) {
-      //点击二级列表显示三级列表
-      this.activedThird = this.activedThird ? "" : ""; //如果三级被选了，清除
-      this.activedSecord = value.label;
-      this.thirdOptionList = value.children;
-      this.thirdOptionShow = true;
-    },
-    selectThird(value) {
-      this.activedThird = value.label;
-      if (this.showAll) {
-        this.selectVal = `${this.activedFirst} / ${this.activedSecord} / ${this.activedThird}`;
+    _showHide(e) {
+      if (this.$el.contains(e.target)) {
+        if (this.disabled === true) {
+          return;
+        }
+        this.show = !this.show;
       } else {
-        this.selectVal = this.activedThird;
-      }
-      this.clickList = [
-        this.activedFirst,
-        this.activedSecord,
-        this.activedThird,
-      ];
-      this.$emit("change", this.clickList);
-      this.isUp = false;
-    },
-    clearOption() {
-      //清空选项
-      this.clickList = [];
-      this.activedFirst = this.activedSecord = this.activedThird = "";
-      this.selectVal = "";
-      this.secordOptionShow = false;
-      this.thirdOptionShow = false;
-      this.secordOptionList = [];
-      this.thirdOptionList = [];
-    },
-    search(e) {
-      this.selectVal = e.target.value;
-      this.searchList = this.allFormatOption.filter((item) => {
-        return item.includes(this.selectVal);
-      });
-      if (this.selectVal == "") {
-        this.searchList = [];
+        this.show = false;
       }
     },
-    selectSearchOption(value) {
-      //选中搜索结果
-      this.selectVal = value;
-      var formatStr = value.replaceAll(" ", "");
-      var arr = formatStr.split("/");
-      this.activedFirst = arr[0];
-      this.activedSecord = arr[1];
-      this.activedThird = arr[2];
-      var firstArr = this.list.filter((item) => {
-        return item.label == this.activedFirst;
+    __init() {
+      let length = this.value.length;
+      // 有值
+      if (this.value && length > 0 && length <= 3) {
+        // 有值时要默认在最后一级，根据当前和取当前位置拼成数组
+        let data;
+        for (let i = 0; i < length; i++) {
+          if (i === 0) {
+            data = this.data;
+          } else if (i === 1) {
+            const index = this.selectValue[0].index;
+            data = this.data[index].children;
+          } else if (i === 2) {
+            const index = this.selectValue[0].index;
+            const data1 = this.data[index].children;
+            const index2 = this.selectValue[1].index;
+            data = data1[index2].children;
+          }
+          this._setDefaultValue(data, i);
+        }
+        this.activeLayer = length - 1;
+        this.showValue = this._formatValue();
+      } else {
+        this.selectValue.push({
+          name: this.selectText[0],
+          index: 0,
+        });
+      }
+    },
+    _setDefaultValue(data, index) {
+      for (let i in data) {
+        // 最后一个比较特别，是数组不是对象，没有name
+        if ((data[i].name || data[i]) === this.value[index]) {
+          this.selectValue.push({
+            name: data[i].name || data[i],
+            index: i,
+          });
+          break;
+        }
+      }
+    },
+    _childrenClick(item) {
+      if (item.hasChild) {
+        if (this.activeLayer === 0) {
+          this.selectValue.splice(0, this.selectValue.length); // 清空
+          // 写入当前项
+          this.selectValue.push({
+            name: item.name,
+            index: item.index, // 当前值在数据组中的位置，for时就可以直接找到当前项
+          });
+          // 写入第二项
+          this.selectValue.push({
+            name: this.selectText[1],
+          });
+        } else if (this.activeLayer === 1) {
+          // 将请选择修改为当前选择
+          this.selectValue[1] = {
+            name: item.name,
+            index: item.index,
+          };
+          // 将第三级设为请选择
+          this.selectValue[2] = { name: this.selectText[2] };
+        }
+        this.activeLayer++; // 跳到下一级
+      } else {
+        // 关闭下拉，将值给输入框，这里有可能是第二级
+        this.selectValue[this.activeLayer] = {
+          name: item.name,
+          index: item.index,
+        };
+        // 如果只有二级时，这里清除下第三级，保证不出错
+        if (this.activeLayer === 1) {
+          this.selectValue.splice(2, 1);
+        }
+        this.showValue = this._formatValue();
+        this.show = false;
+        this.showPlaceholder = false;
+      }
+    },
+    _formatValue(type) {
+      // 将数组转为文本显示出来
+      let val = "";
+      let array = [];
+      for (let i in this.selectValue) {
+        if (type) {
+          // 为真返回数组
+          array.push(this.selectValue[i].name);
+        } else {
+          // 这里返回显示的值，即文本
+          let split = "";
+          if (this.split && this.split.length === 3) {
+            split = this.split[i];
+          }
+          val += this.selectValue[i].name + split;
+        }
+      }
+      return type ? array : val;
+    },
+    _stopPropagation(e) {
+      e.stopPropagation();
+    },
+    _clearClick() {
+      this.showValue = "";
+      this.selectValue = [];
+      this.activeLayer = 0;
+      this.$nextTick(() => {
+        this.selectValue.push({
+          name: this.selectText[0],
+          index: 0,
+        });
       });
-      var secordArr = firstArr[0].children.filter((item) => {
-        return item.label == this.activedSecord;
-      });
-      this.secordOptionList = firstArr[0].children;
-      this.thirdOptionList = secordArr[0].children;
-      this.searchList = [];
-      this.isUp = true;
-      this.$refs.optionList.style.height = "200px";
-      this.$refs.optionList.style.opacity = "1";
     },
   },
   computed: {
-    selectStyle() {
-      //下拉展开动画
-      return this.isUp ? "height:200px;opacity:1;" : "height:0px;opacity:0;";
-    },
-    iconStyle() {
-      //下拉图标旋转
-      return this.isUp
-        ? "transform: rotate(180deg)"
-        : "transform: rotate(0deg)";
-    },
-    activedOptionFontStyle1() {
-      //被选中的文字高亮
-      return (value) => {
-        console.log(value);
-        var newStyle = "";
-        if (value.disabled) return "cursor:no-drop;pointer-events: none;";
-        if (this.activedFirst == value.label)
-          return "color: rgb(55, 102, 204);font-weight:500;";
-        return newStyle;
-      };
-    },
-    activedOptionFontStyle2() {
-      //被选中的文字高亮
-      return (value) => {
-        if (value.disabled)
-          return "color:rgb(226, 226, 226);pointer-events: none;";
-        if (this.activedSecord == value.label)
-          return "color: rgb(55, 102, 204);font-weight:500;";
-        return "";
-      };
-    },
-    activedOptionFontStyle3() {
-      //被选中的文字高亮
-      return (value) => {
-        if (this.activedThird == value.label)
-          return "color: rgb(55, 102, 204);font-weight:500;";
-
-        return "";
-      };
-    },
-    allFormatOption() {
-      var arr = this.list;
-      var filterArrStr = "";
-      var returnArr = [];
-      arr.forEach((item) => {
-        //数据处理
-        filterArrStr += item.label;
-        item.children.forEach((item2) => {
-          filterArrStr += " / " + item2.label;
-          item2.children.forEach((item3) => {
-            filterArrStr += " / " + item3.label;
-            returnArr.push(filterArrStr);
-            filterArrStr = item.label + " / " + item2.label;
-          });
-          filterArrStr = item.label;
+    children() {
+      // 根据selectValue和当前的级数
+      let array = [];
+      let data = this.data;
+      if (this.activeLayer === 0) {
+      } else if (this.activeLayer === 1) {
+        // 根据索引直接找到当前的子级，省去一级级的遍历
+        const index = this.selectValue[0].index;
+        data = this.data[index].children;
+      } else if (this.activeLayer === 2) {
+        const index = this.selectValue[0].index;
+        const data1 = this.data[index].children;
+        const index2 = this.selectValue[1].index;
+        data = data1[index2].children;
+      }
+      for (let i in data) {
+        array.push({
+          name: data[i].name || data[i],
+          index: i,
+          hasChild: !!data[i].children,
         });
-        filterArrStr = "";
-      });
-      return returnArr;
+      }
+      return array;
     },
   },
+  mounted() {
+    document.addEventListener("click", this._showHide);
+    this.__init();
+  },
+  destroyed() {
+    document.addEventListener("click", this._showHide);
+  },
+  filters: {},
 };
 </script>
 
-<style scoped>
-.selectBox {
-  width: 237px;
-  margin: 30px 0 0 30px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-.selectPar {
-  width: 237px;
-  position: relative;
-  cursor: pointer;
-}
-.selectPar .select {
-  width: 220px;
-  min-height: 30px;
-  outline: none;
-  border: 1px solid #ccc;
-  font-size: 12px;
-  line-height: 30px;
-  padding: 5px 0 5px 15px;
-  border-radius: 5px;
-  transition: 0.2s linear;
-  cursor: pointer;
-  user-select: none;
-}
-.select:hover {
-  border: 1px solid black;
-  transform: rotate();
-}
-.select:focus {
-  border: 1px solid rgb(55, 102, 204);
-}
-.selectPar i {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  transition: 0.2s linear;
-}
-.optionBox {
-  width: 450px;
-  background-color: #fff;
-  display: flex;
-}
-.optionList {
-  width: 33%;
-  height: 0px;
-  transition: 0.2s linear;
-  box-shadow: rgb(214, 214, 214) 2px 2px 2px;
-  border: 1px solid #ccc;
-  margin-top: 5px;
-  border-radius: 5px;
-  font-size: 14px;
-}
-.optionList .option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-  height: 30px;
-}
-.optionList .lastOption {
-  justify-content: left;
-}
-.optionList .option:hover {
-  cursor: pointer;
-  background: rgb(208, 206, 218);
-}
-.optionList i {
-  margin-right: 10px;
-}
-.optionList .space {
+<style lang="less" scoped>
+.h-cascader {
   display: inline-block;
-  width: 14px;
-}
-.search {
-  width: 200px;
-  min-height: 60px;
-  background: rgb(245, 246, 247);
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  z-index: 2;
-  position: absolute;
-  top: 50px;
-  text-align: center;
-  font-size: 12px;
-}
-.search span {
-  width: 160px;
-  padding: 0 20px;
-  cursor: pointer;
-  margin-bottom: 10px;
+  position: relative;
+  //用个标签挡住输入框底边线
+  .mask {
+    content: "";
+    height: 2px;
+    background: #fff;
+    position: absolute;
+    left: 0;
+    top: 36px;
+    width: 100%;
+    display: block;
+    z-index: 100;
+    border-left: 1px solid #f60;
+    border-right: 1px solid #f60;
+    box-sizing: border-box;
+  }
+  .h-input-control {
+    position: relative;
+    &:after {
+      top: 0;
+      content: "\e61a";
+      display: block;
+      position: absolute;
+      right: 10px;
+      height: 38px;
+      line-height: 38px;
+      transition: all 0.2s;
+      cursor: pointer;
+      font-family: "iconfont";
+      font-size: 14px;
+    }
+    &.focus {
+      &:after {
+        transform: rotate(180deg);
+      }
+    }
+    &:hover {
+      + .icon-clear {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+  }
+  .icon-close {
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 50;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    &:after {
+      color: #999;
+    }
+    &:hover {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  .cascader-down {
+    position: absolute;
+    left: 0;
+    top: 37px;
+    width: 360px;
+    border: 1px solid #f60;
+    background: #fff;
+    z-index: 99;
+    padding: 10px;
+    overflow: hidden;
+    border-radius: 3px;
+    .tips {
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #666;
+    }
+    .cascader-tab {
+      height: 25px;
+      line-height: 25px;
+      border-bottom: 1px solid #ddd;
+      li {
+        float: left;
+        padding: 0 10px;
+        margin-right: 10px;
+        border: 1px solid #ddd;
+        color: #2d8cf0;
+        font-weight: 700;
+        background: #fff;
+        cursor: pointer;
+        height: 24px;
+        line-height: 24px;
+        border-bottom: 0;
+        overflow-x: hidden;
+        &.active {
+          height: 25px;
+        }
+      }
+    }
+    .cascader-area {
+      clear: both;
+      padding: 10px 5px 5px;
+      overflow: hidden;
+      li {
+        float: left;
+        width: 85px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding-right: 3px;
+        box-sizing: border-box;
+        a {
+          cursor: pointer;
+          font-size: 12px;
+          color: #666;
+          &:hover {
+            color: #f60;
+          }
+        }
+      }
+    }
+  }
 }
 </style>
