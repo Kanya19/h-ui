@@ -11,23 +11,23 @@
       v-text="showValue"
     ></div>
     <i
-      class="clearable iconfont icon-close-circle"
       v-if="clearable && value.length > 0"
+      class="clearable iconfont icon-close-circle"
       @click="_clearClick"
     ></i>
     <div class="cascader-down-box">
       <transition name="slide-toggle">
-        <div v-if="type==='card'" class="cascader-down card" v-show="show" @click="_stopPropagation">
-          <p class="tips" v-text="tipsText" v-if="tipsText"></p>
+        <div v-if="type==='card'" v-show="show" class="cascader-down card" @click="_stopPropagation">
+          <p v-if="tipsText" class="tips" v-text="tipsText"></p>
           <div v-if="selectText.length" class="cascader-tab">
             <ul class="clearfix">
               <li
-                :class="{ active: index === activeLayer }"
                 v-for="(item, index) in selectText"
-                v-show="selectValue.length>=index"
-                v-text="selectValue[index]?selectValue[index].name:item"
+                v-show="selectValue.length>index"
                 :key="index"
+                :class="{ active: index === activeLayer }"
                 @click="activeLayer = index"
+                v-text="selectValue[index]?selectValue[index].name:item"
               ></li>
             </ul>
           </div>
@@ -35,66 +35,68 @@
             <ul class="clearfix">
               <li
                 v-for="(item, index) in children"
-                :title="item.name"
                 :key="index"
+                :title="item.name"
               >
-                <a v-text="item.name" @click="_childrenClick(item,index)"></a>
+                <a @click="_childrenClick(item,index)" v-text="item.name"></a>
               </li>
             </ul>
           </div>
         </div>
-        <div v-else class="cascader-down" v-show="show">
-          <div class=" first" @click="_stopPropagation">
-            <p class="tips" v-text="tipsText" v-if="tipsText"></p>
-            <div class="cascader-area">
-              <ul class="clearfix">
-                <li
-                  :class="{
+        <div v-else v-show="show" class="cascader-down">
+         <div class="box">
+           <div class="first" @click="_stopPropagation">
+             <p v-if="tipsText" class="tips" v-text="tipsText"></p>
+             <div class="cascader-area">
+               <ul class="clearfix">
+                 <li
+                   v-for="(item, index) in firstList"
+                   :key="index"
+                   :class="{
                     active:index===firstIndex
                   }"
-                  v-for="(item, index) in firstList"
-                  :title="item.name"
-                  :key="index"
-                >
-                  <a v-text="item.name" @click="_childrenClick(item,index,0)"></a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="second" v-show="selectValue[0]&&selectValue[0].name" @click="_stopPropagation">
-            <p class="tips" v-text="tipsText" v-if="tipsText"></p>
-            <div class="cascader-area">
-              <ul class="clearfix">
-                <li
-                  :class="{
+                   :title="item.name"
+                 >
+                   <a @click="_childrenClick(item,index,0)" v-text="item.name"></a>
+                 </li>
+               </ul>
+             </div>
+           </div>
+           <div v-if="selectValue[0]&&selectValue[0].name" class="second" @click="_stopPropagation">
+             <p v-if="tipsText" class="tips" v-text="tipsText"></p>
+             <div class="cascader-area">
+               <ul class="clearfix">
+                 <li
+                   v-for="(item, index) in secondList"
+                   :key="index"
+                   :class="{
                     active:index===secondIndex
                   }"
-                  v-for="(item, index) in secondList"
-                  :title="item.name"
-                  :key="index"
-                >
-                  <a v-text="item.name" @click="_childrenClick(item,index,1)"></a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="third" v-show="selectValue[1]&&selectValue[1].name" @click="_stopPropagation">
-            <p class="tips" v-text="tipsText" v-if="tipsText"></p>
-            <div class="cascader-area">
-              <ul class="clearfix">
-                <li
-                  :class="{
+                   :title="item.name"
+                 >
+                   <a @click="_childrenClick(item,index,1)" v-text="item.name"></a>
+                 </li>
+               </ul>
+             </div>
+           </div>
+           <div v-if="selectValue[1]&&selectValue[1].name" class="third" @click="_stopPropagation">
+             <p v-if="tipsText" class="tips" v-text="tipsText"></p>
+             <div class="cascader-area">
+               <ul class="clearfix">
+                 <li
+                   v-for="(item, index) in thirdList"
+                   :key="index"
+                   :class="{
                     active:index===thirdIndex
                   }"
-                  v-for="(item, index) in thirdList"
-                  :title="item.name"
-                  :key="index"
-                >
-                  <a v-text="item.name" @click="_childrenClick(item,index,2)"></a>
-                </li>
-              </ul>
-            </div>
-          </div>
+                   :title="item.name"
+                 >
+                   <a @click="_childrenClick(item,index,2)" v-text="item.name"></a>
+                 </li>
+               </ul>
+             </div>
+           </div>
+         </div>
         </div>
       </transition>
     </div>
@@ -261,7 +263,7 @@ export default {
           array.push(this.selectValue[i].name);
         } else {
           // 这里返回显示的值，即文本
-          let split = "";
+          let split = "/";
           if (this.split && this.split.length === 3) {
             split = this.split[i];
           }
@@ -441,8 +443,9 @@ export default {
   }
 
   .cascader-down-box {
-    position: relative;
+    position: absolute;
     bottom: 0;
+    clear: both;
 
     .cascader-down {
       position: absolute;
@@ -451,8 +454,14 @@ export default {
       //overflow-x: hidden;
       border-radius: 3px;
 
-      .first {
+      .box {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
         position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .first {
+        //position: relative;
         left: 0;
         height: 200px;
         width: 160px;
@@ -465,7 +474,7 @@ export default {
         width: 160px;
         border: 1px solid #39c5bb;
         background: #fff;
-        position: absolute;
+        //position: relative;
         top: 0;
         left: 159px;
       }
@@ -476,11 +485,12 @@ export default {
         border: 1px solid #39c5bb;
         background: #fff;
         top: 0;
-        position: absolute;
+        //position: relative;
         left: 318px;
       }
 
       &.card {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
         width: 360px;
         height: 200px;
         border: 1px solid #39c5bb;
@@ -511,7 +521,7 @@ export default {
           padding: 0 10px;
           margin-right: 10px;
           border: 1px solid #ddd;
-          color: #2d8cf0;
+          color: #39c5bb;
           font-weight: 700;
           background: #fff;
           cursor: pointer;
@@ -538,7 +548,6 @@ export default {
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          padding-right: 3px;
           box-sizing: border-box;
 
           a {

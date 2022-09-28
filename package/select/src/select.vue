@@ -570,9 +570,10 @@ export default {
   position: relative;
   bottom: 0;
   .h-select-down {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
     position: absolute;
     left: 0;
-    top: 0;
+    top: 5px;
     background: #fff;
     border: 1px solid #ddd;
     box-sizing: border-box;
