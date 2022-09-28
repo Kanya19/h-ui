@@ -10,6 +10,8 @@ import { Radio, RadioGroup } from './radio/index.js';
 import Select from './select/index.js';
 import Option from './option/index.js';
 import Cascader from './cascader/index.js';
+import DatePicker from './date-picker/index.js';
+import Tooltip from './tooltip/index.js';
 
 
 const components = [
@@ -25,6 +27,8 @@ const components = [
   Option,
   Cascader,
   RadioGroup,
+  DatePicker,
+  Tooltip,
 ]
 
 const install = function (Vue) {
