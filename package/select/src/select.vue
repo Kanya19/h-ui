@@ -234,7 +234,7 @@ export default {
           return;
         }
         if (this.multiple) {
-          // 多选
+          // 多选dispatch
           let newText = this.text ? this.text.split(",") : []; // label的值，即显示的文字
           if (this.multipleLimit > 0 && this.multipleLimit < newText.length) {
             return false;
