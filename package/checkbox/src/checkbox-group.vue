@@ -1,4 +1,3 @@
-<!--Created by 337547038 on 2018/9/6.-->
 <!--example
 <CheckboxGroup :data="groupDate" v-model="group"></CheckboxGroup>
     group: ['a1', 'a3', 'a6'],
