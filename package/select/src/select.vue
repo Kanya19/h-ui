@@ -1,5 +1,3 @@
-<!-- Created by 337547038 on 2018/8/27 0027. -->
-<!--<Select placeholder="请选择" :options="options" v-model="value"></Select>-->
 <template>
   <div :class="{ open: show, ['h-select']: true, top: position }">
     <div

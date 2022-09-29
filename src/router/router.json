@@ -109,6 +109,28 @@
           "path": "/cascader"
         }
       ]
+    },
+    {
+      "desc": "date-picker",
+      "path": "/date-picker",
+      "items": [
+        {
+          "desc": "date-picker 日期选择",
+          "name": "date-picker",
+          "path": "/date-picker"
+        }
+      ]
+    },
+    {
+      "desc": "tooltip",
+      "path": "/tooltip",
+      "items": [
+        {
+          "desc": "tooltip 提示",
+          "name": "tooltip",
+          "path": "/tooltip"
+        }
+      ]
     }
   ],
   "笔记": [
