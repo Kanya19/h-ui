@@ -18,119 +18,69 @@
   ],
   "组件": [
     {
-      "desc": "basic",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "Icon 图标",
-          "name": "icon",
-          "path": "/icon"
-        },
-        {
-          "desc": "Button 按钮",
-          "name": "button",
-          "path": "/button"
-        }
-      ]
+      "desc": "Icon 图标",
+      "name": "icon",
+      "path": "/icon"
     },
     {
-      "desc": "notice",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "message 消息提示",
-          "name": "message",
-          "path": "/message"
-        }
-      ]
+      "desc": "Button 按钮",
+      "name": "button",
+      "path": "/button"
     },
     {
-      "desc": "others",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "carousel 走马灯",
-          "name": "carousel",
-          "path": "/carousel"
-        }
-      ]
+      "desc": "message 消息提示",
+      "name": "message",
+      "path": "/message"
     },
     {
-      "desc": "input",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "input 输入框",
-          "name": "input",
-          "path": "/input"
-        }
-      ]
+      "desc": "carousel 走马灯",
+      "name": "carousel",
+      "path": "/carousel"
     },
     {
-      "desc": "checkbox",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "checkbox 多选框",
-          "name": "checkbox",
-          "path": "/checkbox"
-        }
-      ]
+      "desc": "input 输入框",
+      "name": "input",
+      "path": "/input"
     },
     {
-      "desc": "radio",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "radio 单选框",
-          "name": "radio",
-          "path": "/radio"
-        }
-      ]
+      "desc": "checkbox 多选框",
+      "name": "checkbox",
+      "path": "/checkbox"
     },
     {
-      "desc": "select",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "select 下拉框",
-          "name": "select",
-          "path": "/select"
-        }
-      ]
+      "desc": "radio 单选框",
+      "name": "radio",
+      "path": "/radio"
     },
     {
-      "desc": "cascader",
-      "path": "/component",
-      "items": [
-        {
-          "desc": "cascader 联级选择器",
-          "name": "cascader",
-          "path": "/cascader"
-        }
-      ]
+      "desc": "select 下拉框",
+      "name": "select",
+      "path": "/select"
     },
     {
-      "desc": "date-picker",
-      "path": "/date-picker",
-      "items": [
-        {
-          "desc": "date-picker 日期选择",
-          "name": "date-picker",
-          "path": "/date-picker"
-        }
-      ]
+      "desc": "cascader 联级选择器",
+      "name": "cascader",
+      "path": "/cascader"
     },
     {
-      "desc": "tooltip",
-      "path": "/tooltip",
-      "items": [
-        {
-          "desc": "tooltip 提示",
-          "name": "tooltip",
-          "path": "/tooltip"
-        }
-      ]
+      "desc": "date-picker 日期选择",
+      "name": "date-picker",
+      "path": "/date-picker"
+    },
+    {
+      "desc": "tooltip 提示",
+      "name": "tooltip",
+      "path": "/tooltip"
+    },
+    {
+      "desc": "tabs 选项卡",
+      "name": "tabs",
+      "path": "/tabs"
+    },
+    {
+      "desc": "badge 标记",
+      "name": "badge",
+      "path": "/badge"
     }
   ],
   "笔记": [

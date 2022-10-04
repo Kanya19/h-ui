@@ -12,6 +12,8 @@ import Option from './option/index.js';
 import Cascader from './cascader/index.js';
 import DatePicker from './date-picker/index.js';
 import Tooltip from './tooltip/index.js';
+import Badge from './badge/index.js';
+import { Tabs, TabPane } from './tabs/index.js';
 
 
 const components = [
@@ -29,6 +31,9 @@ const components = [
   RadioGroup,
   DatePicker,
   Tooltip,
+  Tabs,
+  TabPane,
+  Badge
 ]
 
 const install = function (Vue) {

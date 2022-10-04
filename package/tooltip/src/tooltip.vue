@@ -168,6 +168,6 @@ export default {
   },
 };
 </script>
-<style lang="less" scoped>
+<style lang="less">
 @import "./tooltip.less";
 </style>
